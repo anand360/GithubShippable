@@ -10,15 +10,19 @@
                 var baseApiUrl = "https://api.github.com/search/issues?q=type:issue+is:open+user:";
                 var gitUrl = $("#gitUrl").val();
                 var gitUrlArray = gitUrl.split("/");
+
+                //validation
                 if (gitUrlArray.length < 5 || gitUrlArray[3] === "" || gitUrlArray[4] === "") {
                     return alert("Invalid URL.");
                 }
 
+                // Fetch total issues count
                 var gitDataAllUrl = baseApiUrl + gitUrlArray[3] + "+repo:" + gitUrlArray[4];
                 $.get(gitDataAllUrl, function (data) {
                     $("#tIssue").text(data["total_count"]);
                 });
 
+                // Fetch one day issues count
                 var now = new Date();
                 var yesterday = new Date(new Date().setDate(now.getDate() - 1));
                 var gitDataOneDayUrl = baseApiUrl + gitUrlArray[3] + "+repo:" + gitUrlArray[4] + "+created:\"" + yesterday.toISOString() + " .. " + now.toISOString() + "\"";
@@ -26,12 +30,14 @@
                     $("#yIssue").text(data["total_count"]);
                 });
 
+                // Fetch one week issues count
                 var lastWeek = new Date(new Date().setDate(now.getDate() - 7));
                 var gitDataOneWeekUrl = baseApiUrl + gitUrlArray[3] + "+repo:" + gitUrlArray[4] + "+created:\"" + lastWeek.toISOString() + " .. " + yesterday.toISOString() + "\"";
                 $.get(gitDataOneWeekUrl, function (data) {
                     $("#lwIssue").text(data["total_count"]);
                 });
 
+                // Fetch after week issues count
                 var gitDataAfterWeekUrl = baseApiUrl + gitUrlArray[3] + "+repo:" + gitUrlArray[4] + "+created:\"* .. " + lastWeek.toISOString() + "\"";
                 $.get(gitDataAfterWeekUrl, function (data) {
                     $("#awIssue").text(data["total_count"]);
