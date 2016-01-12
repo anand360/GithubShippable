@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <title>GitHub Shippable</title>
+    <meta charset="utf-8" />
+    <script>
+        $(document).ready(function () {
+            $("#getIssue").click(function (e) {
+                var baseApiUrl = "https://api.github.com/search/issues?q=type:issue+is:open+user:";
+                var gitUrl = $("#gitUrl").val();
+                var gitUrlArray = gitUrl.split("/");
+                if (gitUrlArray.length < 5 || gitUrlArray[3] === "" || gitUrlArray[4] === "") {
+                    return alert("Invalid URL.");
+                }
+
+                var gitDataAllUrl = baseApiUrl + gitUrlArray[3] + "+repo:" + gitUrlArray[4];
+                $.get(gitDataAllUrl, function (data) {
+                    $("#tIssue").text(data["total_count"]);
+                });
+
+                var now = new Date();
+                var yesterday = new Date(new Date().setDate(now.getDate() - 1));
+                var gitDataOneDayUrl = baseApiUrl + gitUrlArray[3] + "+repo:" + gitUrlArray[4] + "+created:\"" + yesterday.toISOString() + " .. " + now.toISOString() + "\"";
+                $.get(gitDataOneDayUrl, function (data) {
+                    $("#yIssue").text(data["total_count"]);
+                });
+
+                var lastWeek = new Date(new Date().setDate(now.getDate() - 7));
+                var gitDataOneWeekUrl = baseApiUrl + gitUrlArray[3] + "+repo:" + gitUrlArray[4] + "+created:\"" + lastWeek.toISOString() + " .. " + yesterday.toISOString() + "\"";
+                $.get(gitDataOneWeekUrl, function (data) {
+                    $("#lwIssue").text(data["total_count"]);
+                });
+
+                var gitDataAfterWeekUrl = baseApiUrl + gitUrlArray[3] + "+repo:" + gitUrlArray[4] + "+created:\"* .. " + lastWeek.toISOString() + "\"";
+                $.get(gitDataAfterWeekUrl, function (data) {
+                    $("#awIssue").text(data["total_count"]);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <input type="text" id="gitUrl" placeholder="enter GitHub repos url." style="width:50%" />
+    <button value="Click" id="getIssue">Click</button>
+
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Count</th>
+        </tr>
+        <tr>
+            <td>Total number of open issues</td>
+            <td><span id="tIssue"></span></td>
+        </tr>
+        <tr>
+            <td>Number of open issues that were opened in the last 24 hours</td>
+            <td><span id="yIssue"></span></td>
+        </tr>
+        <tr>
+            <td>Number of open issues that were opened more than 24 hours ago but less than 7 days ago</td>
+            <td><span id="lwIssue"></span></td>
+        </tr>
+        <tr>
+            <td>Number of open issues that were opened more than 7 days ago </td>
+            <td><span id="awIssue"></span></td>
+        </tr>
+    </table>
+</body>
+</html>
